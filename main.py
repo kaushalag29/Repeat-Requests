@@ -184,7 +184,7 @@ class Repeater:
 
 root = Tk()
 root.title("Repeater-Automater")
-root.geometry("1100x500")
+root.geometry("1100x600")
 gui = Repeater(root)
 gui.start()
 root.mainloop()
