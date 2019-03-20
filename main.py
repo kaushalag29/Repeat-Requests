@@ -96,11 +96,16 @@ class Repeater:
         self.PTextBox.pack()
         self.PScroll.config(command=self.PTextBox.yview)
         self.PTextFrame.grid(column=1, columnspan=2)
+        self.updateGetRes()
 
-        while(self.cnt <= self.times):
-            self.res = requests.get(self.url,cookies=self.cookies)
-            self.PTextBox.insert('1.0',(str(self.res)+'\n'))
+    def updateGetRes(self):
+        if(self.cnt <= self.times):
+            self.res = requests.get(self.url, cookies=self.cookies)
+            self.PTextBox.insert('1.0', (str(self.res) + '\n'))
             self.cnt += 1
+            self.PTextBox.after(500,self.updateGetRes)
+        else:
+            self.PTextBox.config(state=DISABLED)
 
     def postResponse(self):
         self.url = self.url_entry.get()
@@ -119,11 +124,16 @@ class Repeater:
         self.PTextBox.pack()
         self.PScroll.config(command=self.PTextBox.yview)
         self.PTextFrame.grid(column=1, columnspan=2)
+        self.updatePostRes()
 
-        while (self.cnt <= self.times):
-            self.res = requests.post(self.url,cookies=self.cookies)
+    def updatePostRes(self):
+        if (self.cnt <= self.times):
+            self.res = requests.post(self.url, cookies=self.cookies)
             self.PTextBox.insert('1.0', (str(self.res) + '\n'))
             self.cnt += 1
+            self.PTextBox.after(500, self.updatePostRes)
+        else:
+            self.PTextBox.config(state=DISABLED)
 
 root = Tk()
 root.title("Repeater-Automater")
