@@ -5,7 +5,6 @@ import requests
 class Repeater:
     def __init__(self, root):
         self.root = root
-        self.cookies = {}
 
     def start(self):
         self.MainFrame = Frame(self.root)
@@ -26,6 +25,7 @@ class Repeater:
         self.generate_button.grid(row=2,column=3,sticky="W")
 
     def addCookieParam(self):
+        self.cookies = {}
         self.row = 3
         self.cnt = 1
         self.num = int(self.no_of_key_value.get())
@@ -80,12 +80,14 @@ class Repeater:
         self.row += 1
 
     def getResponse(self):
+        self.storeRes = {}
         self.url = self.url_entry.get()
         self.times = int(self.no_of_times_to_repeat_value.get())
         self.cnt = 1
 
         try:
             self.PTextFrame.destroy()
+            self.RTextFrame.destroy()
         except:
             pass
 
@@ -101,19 +103,54 @@ class Repeater:
     def updateGetRes(self):
         if(self.cnt <= self.times):
             self.res = requests.get(self.url, cookies=self.cookies)
+            try:
+                self.storeRes[str(self.res.status_code)] = self.res.json()
+            except:
+                self.storeRes[str(self.res.status_code)] = self.res.text
             self.PTextBox.insert('1.0', (str(self.res) + '\n'))
             self.cnt += 1
             self.PTextBox.after(500,self.updateGetRes)
         else:
             self.PTextBox.config(state=DISABLED)
+            self.response_label = Label(self.PTextFrame, text="Enter Status Code To See Response")
+            self.response_label.pack()
+            self.response_entry = Entry(self.PTextFrame)
+            self.response_entry.pack()
+            self.response_button = Button(self.PTextFrame, text="Show-Response", command=self.showResponse)
+            self.response_button.pack()
+
+    def showResponse(self):
+        try:
+            self.res = self.storeRes[self.response_entry.get()]
+        except:
+            self.res = "Please Enter A Valid Response Status Code!"
+
+        try:
+            self.RTextFrame.destroy()
+        except:
+            pass
+
+        self.RTextFrame = Frame(self.inputFr)
+        self.RScroll = Scrollbar(self.RTextFrame)
+        self.RScroll.pack(side=RIGHT, fill=Y)
+        self.RTextBox = Text(self.RTextFrame, height=10, width=50, yscrollcommand=self.RScroll.set)
+        self.RTextBox.pack()
+        self.RScroll.config(command=self.RTextBox.yview)
+        self.RTextFrame.grid(column=1, columnspan=2)
+
+        self.RTextBox.insert("1.0",self.res)
+        self.RTextBox.config(state=DISABLED)
+
 
     def postResponse(self):
+        self.storeRes = {}
         self.url = self.url_entry.get()
         self.times = int(self.no_of_times_to_repeat_value.get())
         self.cnt = 1
 
         try:
             self.PTextFrame.destroy()
+            self.RTextFrame.destroy()
         except:
             pass
 
@@ -129,16 +166,25 @@ class Repeater:
     def updatePostRes(self):
         if (self.cnt <= self.times):
             self.res = requests.post(self.url, cookies=self.cookies)
+            try:
+                self.storeRes[str(self.res.status_code)] = self.res.json()
+            except:
+                self.storeRes[str(self.res.status_code)] = self.res.text
             self.PTextBox.insert('1.0', (str(self.res) + '\n'))
             self.cnt += 1
             self.PTextBox.after(500, self.updatePostRes)
         else:
             self.PTextBox.config(state=DISABLED)
+            self.response_label = Label(self.PTextFrame, text="Enter Status Code To See Response")
+            self.response_label.pack()
+            self.response_entry = Entry(self.PTextFrame)
+            self.response_entry.pack()
+            self.response_button = Button(self.PTextFrame, text="Show-Response", command=self.showResponse)
+            self.response_button.pack()
 
 root = Tk()
 root.title("Repeater-Automater")
 root.geometry("1100x500")
-root.resizable(0,0)
 gui = Repeater(root)
 gui.start()
 root.mainloop()
